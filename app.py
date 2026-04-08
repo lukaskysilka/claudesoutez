@@ -3,9 +3,10 @@ from __future__ import annotations
 import pandas as pd
 import streamlit as st
 
+from app.config import settings
 from app.engine.estimator import estimate_market_size
 from app.heuristics.extractor import enrich_product_signal
-from app.search.providers import get_search_provider
+from app.search.providers import MockSearchProvider, get_search_provider
 
 st.set_page_config(page_title="Movit Energy | Market Size Estimator", layout="wide")
 
@@ -17,13 +18,20 @@ with st.sidebar:
     product_name = st.text_input("Product Name", placeholder="e.g., Energy Gel")
     composition = st.text_area("Ingredients / Composition", placeholder="e.g., caffeine, taurine, B vitamins")
     run_btn = st.button("Run estimation", type="primary")
+    if settings.search_provider.lower() == "mock":
+        st.info("Running in MOCK mode (no API key needed).")
 
 if run_btn:
     if not product_name.strip() or not composition.strip():
         st.warning("Please provide both Product Name and Ingredients/Composition.")
         st.stop()
 
-    provider = get_search_provider()
+    try:
+        provider = get_search_provider()
+    except ValueError:
+        provider = MockSearchProvider()
+        st.warning("SERPER_API_KEY not found. Falling back to MOCK mode so you can run immediately.")
+
     regions = ["CZ", "EU", "USA"]
 
     with st.spinner("Collecting competitors and estimating market size..."):

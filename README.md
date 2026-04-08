@@ -2,12 +2,42 @@
 
 Streamlit web app to estimate market size for a product using competitor discovery in CZ, EU, and USA.
 
+## Super quick run (no API key)
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+The app starts in **MOCK mode** by default so you can run it immediately.
+
+## Optional: real search with Serper
+
+```bash
+cp .env.example .env
+```
+
+Then set:
+
+```env
+SEARCH_PROVIDER=serper
+SERPER_API_KEY=<your-key>
+```
+
+Run again:
+
+```bash
+streamlit run app.py
+```
+
 ## Features
 
 - Input fields for **Product Name** and **Ingredients/Composition**.
 - Search module with pluggable providers:
+  - `mock` (default, offline demo)
   - `serper` (real integration)
-  - `mock` (offline demo)
 - Heuristic extraction for:
   - Number of reviews
   - Average price + currency guess
@@ -19,31 +49,6 @@ Streamlit web app to estimate market size for a product using competitor discove
   - USD and CZK values
   - Top competitor table with source URLs
 
-## Quick start
-
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env
-```
-
-Edit `.env` and set:
-
-```env
-SEARCH_PROVIDER=serper
-SERPER_API_KEY=<your-key>
-REVIEW_TO_SALES_MULTIPLIER=50
-USD_TO_CZK=23.2
-EUR_TO_CZK=25.3
-```
-
-Run:
-
-```bash
-streamlit run app.py
-```
-
 ## Modular architecture
 
 - `app/search/providers.py` -> search provider interface + Serper integration.
@@ -51,8 +56,3 @@ streamlit run app.py
 - `app/engine/estimator.py` -> market-size calculation engine.
 - `app/config.py` -> env-based settings.
 - `app.py` -> Streamlit UI.
-
-## Notes
-
-- The search snippets may not always include review counts and prices. In such cases, values default to `0`.
-- You can add another provider (Google Custom Search, scraping pipeline, etc.) by implementing the `SearchProvider` interface.
